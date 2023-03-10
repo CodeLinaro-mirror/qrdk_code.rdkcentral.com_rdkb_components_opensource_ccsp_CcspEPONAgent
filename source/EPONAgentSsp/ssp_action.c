@@ -166,7 +166,6 @@ ANSC_STATUS ssp_engage
     ANSC_STATUS        returnStatus = ANSC_STATUS_SUCCESS;
     PCCC_MBI_INTERFACE pSsdMbiIf = (PCCC_MBI_INTERFACE)MsgHelper_CreateCcdMbiIf((void*)bus_handle, g_Subsystem);
     char               CrName[256];    
-    PCCSP_DM_XML_CFG_LIST pXmlCfgList = NULL;
 
     EPONAGENTLOG(INFO, "Entering into <%s>\n", __FUNCTION__)
     g_pComponent_COMMON->Health = CCSP_COMMON_COMPONENT_HEALTH_Yellow;
@@ -187,14 +186,7 @@ ANSC_STATUS ssp_engage
         _ansc_sprintf(CrName, "%s", CCSP_DBUS_INTERFACE_CR);
     }
 
-    returnStatus = CcspComponentLoadDmXmlList(pStartCfg->DmXmlCfgFileName, &pXmlCfgList);
-    if ( returnStatus != ANSC_STATUS_SUCCESS )
-    {
-        EPONAGENTLOG(ERROR, "Failed to LoadDmXmlList of %s \n", pStartCfg->DmXmlCfgFileName)
-        return  returnStatus;
-    }
-
-    EPONAGENTLOG(INFO, "Registering CcspDataModel with following parameters\nCrName: <%s>\npXmlCfgList->FileList[0]: <%s>\npStartCfg->ComponentName: <%s>\npStartCfg->DbusPath: %s\ng_Subsystem: %s\n", CrName, pXmlCfgList->FileList[0], pStartCfg->ComponentName, pStartCfg->DbusPath, g_Subsystem)
+    EPONAGENTLOG(INFO, "Registering CcspDataModel with following parameters\nCrName: <%s>\npStartCfg->ComponentName: <%s>\npStartCfg->DbusPath: %s\ng_Subsystem: %s\n", CrName, pStartCfg->ComponentName, pStartCfg->DbusPath, g_Subsystem)
 
 	returnStatus =
 	    pDslhCpeController->RegisterCcspDataModel2
