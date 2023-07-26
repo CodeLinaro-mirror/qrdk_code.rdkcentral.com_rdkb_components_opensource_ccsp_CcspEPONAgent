@@ -285,20 +285,23 @@ ANSC_STATUS CosaDmlDIGetProtocol(char *Protocol)
 ANSC_STATUS CosaDmlDIGetURL(ANSC_HANDLE hContext)
 {
     PCOSA_DATAMODEL_DEVICEINFO     pMyObject = (PCOSA_DATAMODEL_DEVICEINFO)hContext;
-    if(syscfg_get(NULL,"xconf_url",pMyObject->DownloadURL,128) == 0)
+
+    if (syscfg_get(NULL, "xconf_url", pMyObject->DownloadURL, sizeof(pMyObject->DownloadURL)) == 0)
     {
         return ANSC_STATUS_SUCCESS;
     }
+
     return ANSC_STATUS_FAILURE;
 }
 
 ANSC_STATUS CosaDmlDIGetImage(ANSC_HANDLE hContext)
 {
     PCOSA_DATAMODEL_DEVICEINFO     pMyObject = (PCOSA_DATAMODEL_DEVICEINFO)hContext;
-    char Last_reboot_reason[14]={0};
+    char Last_reboot_reason[32];
     int rc = -1;
+
     //On Factory reset Syscfg values will be empty. So sync fw_to_upgrade with current image version
-    if(syscfg_get(NULL,"X_RDKCENTRAL-COM_LastRebootReason",Last_reboot_reason,14) == 0)
+    if (syscfg_get(NULL, "X_RDKCENTRAL-COM_LastRebootReason", Last_reboot_reason, sizeof(Last_reboot_reason)) == 0)
     {
         if (strcmp(Last_reboot_reason, "factory-reset") == 0)
         {
@@ -307,16 +310,15 @@ ANSC_STATUS CosaDmlDIGetImage(ANSC_HANDLE hContext)
             {
                 return ANSC_STATUS_FAILURE;
             }
-            if(syscfg_set(NULL, "fw_to_upgrade", pMyObject->Firmware_To_Download) == 0)
+            if(syscfg_set_commit(NULL, "fw_to_upgrade", pMyObject->Firmware_To_Download) != 0)
             {
-                if(syscfg_commit() != 0)
-                    CcspTraceWarning(("%s: syscfg commit failed \n", __FUNCTION__));
+                CcspTraceWarning(("%s: syscfg_set failed \n", __FUNCTION__));
             }
             return ANSC_STATUS_SUCCESS;
         }
         else
         {
-            if(syscfg_get(NULL,"fw_to_upgrade",pMyObject->Firmware_To_Download,128) == 0)
+            if (syscfg_get(NULL, "fw_to_upgrade", pMyObject->Firmware_To_Download, sizeof(pMyObject->Firmware_To_Download)) == 0)
             {
                 return ANSC_STATUS_SUCCESS;
             }
